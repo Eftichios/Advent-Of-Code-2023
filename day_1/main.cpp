@@ -129,10 +129,6 @@ TrieNode* InitTrie(MemoryArena* memoryArena)
     return trieNode;
 }
 
-int CharToInt(char c) {
-    return c - '0';
-}
-
 int ParseFileContents(char* fileContents, DWORD fileSize, MemoryArena* memoryArena) 
 {
     int result = 0;
