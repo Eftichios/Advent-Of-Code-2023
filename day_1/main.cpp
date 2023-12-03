@@ -228,6 +228,5 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     Print("Answer is %d\n", answer);
 
     FreeAllMemory(&memoryArena);
-
     return 0;
 }

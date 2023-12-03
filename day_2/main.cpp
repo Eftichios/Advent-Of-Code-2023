@@ -153,4 +153,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     FileResult fileResult = ReadTextFile(fileName, fileSize, &memoryArena);
 
     ParseFileContents((char*)fileResult.result, fileSize, &memoryArena);
+
+    FreeAllMemory(&memoryArena);
+    return 0;
 }

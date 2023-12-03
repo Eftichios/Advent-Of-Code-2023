@@ -161,6 +161,25 @@ EatResult EatWord(char*& s, MemoryArena *memoryArena)
     return eatResult;
 }
 
+EatResult ExtractNumber(char* s, MemoryArena *memoryArena)
+{
+    EatResult eatResult = {};
+    char* startingString = s;
+    char current = s[0];
+    int length = 0;
+    while ((current >= 48 && current <= 57))
+    {
+        length++;
+        s++;
+        current = s[0];
+        eatResult.success = true;
+    }
+    eatResult.result = (char*)AllocateMemory(memoryArena, length + 1);
+    CopyMemory(eatResult.result, startingString, length + 1);
+    eatResult.result[length] = '\0';
+    return eatResult;
+}
+
 EatResult EatNumber(char*& s, MemoryArena *memoryArena)
 {
     EatResult eatResult = {};
@@ -204,6 +223,16 @@ inline int Length(char* s)
     {
         len++;
         s++;
+    }
+    return len;
+}
+
+inline int RowLength(char* s)
+{
+    int len = 0;
+    while (s[len] != '\r')
+    {
+        len++;
     }
     return len;
 }
