@@ -66,7 +66,7 @@ inline void FreeMemory(void* memory, int size)
     // TODO: this will leave gaps in our arena
     // for now we can just allocate more memory in our memory arena at startup
     // to avoid problems...
-    VirtualFree(memory, size, MEM_DECOMMIT);
+    VirtualAlloc(memory, size, MEM_RESET, PAGE_READWRITE);
 }
 
 inline void FreeAllMemory(MemoryArena* memoryArena)
@@ -249,4 +249,40 @@ inline int StringToInt(char* s)
         len--;
     }
     return result;
+}
+
+// #################################################
+//                   DATA STRUCTURES 
+// #################################################
+template <typename T>
+void PushArray(Array<T>* array, T value, MemoryArena* memoryArena)
+{
+    if (array->currentCapacity + 1 > array->maxCapacity)
+    {
+        T* newMemory = (T*)VirtualAlloc(0, sizeof(T) * array->maxCapacity * 2, MEM_RESERVE | MEM_COMMIT,
+                PAGE_READWRITE);
+        MoveMemory(newMemory, array->data, sizeof(T) * array->maxCapacity);
+        array->data = newMemory;
+        array->maxCapacity *= 2;
+    }
+
+    array->data[array->currentCapacity] = value;
+    array->currentCapacity++;
+}
+
+
+template <typename T>
+T PopArray(Array<T>* array)
+{
+    if (array->currentCapacity == 0)
+    {
+        return {};
+    }
+
+    T value = *array->data;
+    *array->data = array->data[array->currentCapacity - 1];
+    array->data[array->currentCapacity - 1] = 0;
+    array->currentCapacity--;
+
+    return value;
 }

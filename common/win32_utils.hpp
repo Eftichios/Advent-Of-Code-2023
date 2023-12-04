@@ -2,6 +2,7 @@
 #include <windows.h>
 
 #define Kilobytes(value) ((value) * 1024)
+#define INITIAL_ARRAY_SIZE 256
 
 struct FileResult
 {
@@ -21,6 +22,17 @@ struct EatResult
 {
     bool success;
     char* result;
+};
+
+template <typename T>
+struct Array {
+    T* data;
+    int currentCapacity;
+    int maxCapacity = INITIAL_ARRAY_SIZE;
+
+    T operator[](int index) {
+        return *(data + index);
+    }
 };
 
 inline void* AllocateMemory(MemoryArena* memoryArena, int size);
@@ -44,3 +56,8 @@ inline bool CompareStringWithLiteral(char* str, const char* literal);
 inline int Length(char* s);
 inline int RowLength(char* s);
 inline int StringToInt(char* s);
+
+template <typename T>
+void PushArray(Array<T>* array, T value, MemoryArena* memoryArena);
+template <typename T>
+T PopArray(Array<T>* array);
