@@ -1,6 +1,5 @@
 #include "../common/win32_utils.cpp"
 
-#define HASH_SIZE 32
 #define MAX_WINNING_NUMBERS 1024
 
 struct CardResult {
@@ -11,72 +10,14 @@ struct CardResult {
 };
 
 struct HashNode {
-    int number;
+    int key;
     HashNode* nextNode;
 };
-
-struct HashMap {
-    HashNode* hashNodes[HASH_SIZE];
-};
-
-int HashFunction(int number)
-{
-    // TODO: Better hash function
-    return (14 * number + 3 * number + number / 5) % HASH_SIZE;
-}
-
-HashNode* RetrieveFromHashMap(HashMap* hashMap, int number)
-{
-    HashNode* hashNode = hashMap->hashNodes[HashFunction(number)];
-    if (!hashNode)
-    {
-        return hashNode;
-    }
-
-    HashNode* current = hashNode;
-    while (current)
-    {
-        if (current->number == number)
-        {
-            return current;
-        }
-        current = current->nextNode;
-    }
-    return 0;
-}
-
-HashNode* AddToHashMap(HashMap* hashMap, int number, MemoryArena* memoryArena) {
-    HashNode* hashNode = hashMap->hashNodes[HashFunction(number)];
-
-    HashNode* newHashNode = (HashNode*)AllocateMemory(memoryArena, 
-            sizeof(HashNode));
-
-    newHashNode->number = number;
-    if (hashNode)
-    {
-        HashNode* current = hashNode;
-        while (current)
-        {
-            if (!current->nextNode)
-            {
-                current->nextNode = newHashNode;
-                break;
-            }
-            current = current->nextNode;
-        }
-    }
-    else 
-    {
-        hashMap->hashNodes[HashFunction(number)] = newHashNode;
-    }
-
-    return newHashNode;
-}
 
 CardResult ParseOneCard(char*& s, MemoryArena* memoryArena)
 {
 
-    HashMap hashMap = {};
+    HashMap<HashNode> hashMap = {};
     HashNode* freeTable[MAX_WINNING_NUMBERS];
     int allocatedHashNodes = 0;
 
@@ -97,8 +38,9 @@ CardResult ParseOneCard(char*& s, MemoryArena* memoryArena)
         eatResult = EatNumber(s, memoryArena);
         int winningNumber = StringToInt(eatResult.result);
 
-        // @Memory Leak
-        HashNode* hashNode = AddToHashMap(&hashMap, winningNumber, memoryArena);
+        HashNode newHashNode = {};
+        newHashNode.key = winningNumber;
+        HashNode* hashNode = AddToHashMap(&hashMap, winningNumber, newHashNode, memoryArena);
         freeTable[allocatedHashNodes] = hashNode;
         allocatedHashNodes += 1;
     }
@@ -174,13 +116,10 @@ void ParseFileContents(char* fileContents, DWORD fileSize, MemoryArena* memoryAr
     AllocateMemory(memoryArena, 1);
 
     Array<int> cardCopies = {};
-    cardCopies.data = (int*)AllocateMemory(memoryArena, sizeof(int) * INITIAL_ARRAY_SIZE);
-    cardCopies.currentCapacity = 0;
+    InitArrayData(&cardCopies, memoryArena);
 
     Array<CardResult> cardResults = {};
-    cardResults.data = (CardResult*)AllocateMemory(memoryArena, sizeof(CardResult) * maxCards);
-    cardResults.currentCapacity = 0;
-    cardResults.maxCapacity = maxCards;
+    InitArrayData(&cardResults, memoryArena, maxCards);
     
     while (*s)
     {

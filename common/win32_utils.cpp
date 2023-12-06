@@ -140,6 +140,22 @@ inline EatResult EatSpaces(char*& s)
     return eatResult;
 }
 
+inline EatResult EatEntireLine(char*& s)
+{
+    EatResult eatResult = {};
+    char current = s[0];
+    while (current != '\r')
+    {
+        s++;
+        current = s[0];
+        eatResult.success = true;
+    }
+
+    s += 2;
+
+    return eatResult;
+}
+
 EatResult EatWord(char*& s, MemoryArena *memoryArena)
 {
     EatResult eatResult = {};
@@ -254,6 +270,8 @@ inline int StringToInt(char* s)
 // #################################################
 //                   DATA STRUCTURES 
 // #################################################
+
+// ARRAY
 template <typename T>
 void PushArray(Array<T>* array, T value, MemoryArena* memoryArena)
 {
@@ -285,4 +303,71 @@ T PopArray(Array<T>* array)
     array->currentCapacity--;
 
     return value;
+}
+
+template <typename T>
+void InitArrayData(Array<T>* array, MemoryArena* memoryArena,
+        int maxCapacity = INITIAL_ARRAY_SIZE)
+{
+    array->data = (T*)AllocateMemory(memoryArena, sizeof(T) * maxCapacity);
+    array->currentCapacity = 0;
+    array->maxCapacity = maxCapacity;
+}
+
+// HASHMAP
+int HashFunction(int key)
+{
+    // TODO: Better hash function
+    return (14 * key + 3 * key + key / 5) % HASH_SIZE;
+}
+
+template <typename T>
+T* RetrieveFromHashMap(HashMap<T>* hashMap, int key)
+{
+    T* hashNode = hashMap->hashNodes[HashFunction(key)];
+    if (!hashNode)
+    {
+        return hashNode;
+    }
+
+    T* current = hashNode;
+    while (current)
+    {
+        if (current->key == key)
+        {
+            return current;
+        }
+        current = current->nextNode;
+    }
+    return 0;
+}
+
+template <typename T>
+T* AddToHashMap(HashMap<T>* hashMap, int key, T newHashNodeValue, MemoryArena* memoryArena) 
+{
+    T* hashNode = hashMap->hashNodes[HashFunction(key)];
+
+    T* newHashNode = (T*)AllocateMemory(memoryArena, 
+            sizeof(T));
+
+    *newHashNode = newHashNodeValue;
+    if (hashNode)
+    {
+        T* current = hashNode;
+        while (current)
+        {
+            if (!current->nextNode)
+            {
+                current->nextNode = newHashNode;
+                break;
+            }
+            current = current->nextNode;
+        }
+    }
+    else 
+    {
+        hashMap->hashNodes[HashFunction(key)] = newHashNode;
+    }
+
+    return newHashNode;
 }

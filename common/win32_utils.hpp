@@ -3,6 +3,7 @@
 
 #define Kilobytes(value) ((value) * 1024)
 #define INITIAL_ARRAY_SIZE 256
+#define HASH_SIZE 256
 
 struct FileResult
 {
@@ -35,6 +36,11 @@ struct Array {
     }
 };
 
+template <typename T>
+struct HashMap {
+    T* hashNodes[HASH_SIZE];
+};
+
 inline void* AllocateMemory(MemoryArena* memoryArena, int size);
 inline void FreeMemory(void* memory, int size);
 inline void FreeAllMemory(MemoryArena* memoryArena);
@@ -49,6 +55,7 @@ inline int Pow(int number, int power);
 inline int CharToInt(char c);
 inline EatResult EatDelimeter(char*& s, char delim);
 inline EatResult EatSpaces(char*& s);
+inline EatResult EatEntireLine(char*& s);
 EatResult EatWord(char*& s, MemoryArena *memoryArena);
 EatResult ExtractNumber(char* s, MemoryArena *memoryArena);
 EatResult EatNumber(char*& s, MemoryArena *memoryArena);
@@ -61,3 +68,9 @@ template <typename T>
 void PushArray(Array<T>* array, T value, MemoryArena* memoryArena);
 template <typename T>
 T PopArray(Array<T>* array);
+
+int HashFunction(int key);
+template <typename T>
+T* RetrieveFromHashMap(HashMap<T>* hashMap, int key);
+template <typename T>
+void AddToHashMap(HashMap<T>* hashMap, int key, MemoryArena* memoryArena, T newHashNodeValue);

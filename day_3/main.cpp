@@ -1,86 +1,25 @@
 #include "../common/win32_utils.cpp"
 
-#define HASH_SIZE 256
-
 struct HashNode {
-    int charIndex;
+    int key;
 
     int numberOfParts;
     int numbers[2];
     HashNode* nextNode;
 };
 
-struct HashMap {
-    HashNode* hashNodes[HASH_SIZE];
-};
-
-int HashFunction(int charIndex)
-{
-    // TODO: Better hash function
-    return (14 * charIndex + 3 * charIndex + charIndex / 5) % HASH_SIZE;
-}
-
-HashNode* RetrieveFromHashMap(HashMap* hashMap, int charIndex)
-{
-    HashNode* hashNode = hashMap->hashNodes[HashFunction(charIndex)];
-    if (!hashNode)
-    {
-        return hashNode;
-    }
-
-    HashNode* current = hashNode;
-    while (current)
-    {
-        if (current->charIndex == charIndex)
-        {
-            return current;
-        }
-        current = current->nextNode;
-    }
-    return 0;
-}
-
-void AddToHashMap(HashMap* hashMap, int charIndex, MemoryArena* memoryArena, int num) {
-    HashNode* hashNode = hashMap->hashNodes[HashFunction(charIndex)];
-
-    HashNode* newHashNode = (HashNode*)AllocateMemory(memoryArena, 
-            sizeof(HashNode));
-
-    newHashNode->charIndex = charIndex;
-    newHashNode->numberOfParts = 1;
-    newHashNode->numbers[0] = num;
-    if (hashNode)
-    {
-        HashNode* current = hashNode;
-        while (current)
-        {
-            if (!current->nextNode)
-            {
-                current->nextNode = newHashNode;
-                break;
-            }
-            current = current->nextNode;
-        }
-    }
-    else 
-    {
-        hashMap->hashNodes[HashFunction(charIndex)] = newHashNode;
-    }
-}
-
-
 bool CheckSquareForSymbol(int rowOffset, int columnOffset, 
-        char* fileContents, int index, int rowLength, int num, HashMap* hashMap, 
+        char* fileContents, int index, int rowLength, int num, HashMap<HashNode>* hashMap, 
         MemoryArena* memoryArena, bool *wasAlreadyCounted)
 {
-    int charIndex = index + rowOffset + columnOffset * rowLength;
-    char square = fileContents[charIndex];
+    int key = index + rowOffset + columnOffset * rowLength;
+    char square = fileContents[key];
 
     if (square != '.' && (square < 48 || square >57))
     {
         if (square == '*' && !*wasAlreadyCounted)
         {
-            HashNode* hashNode = RetrieveFromHashMap(hashMap, charIndex);
+            HashNode* hashNode = RetrieveFromHashMap(hashMap, key);
             if (hashNode)
             {
                 hashNode->numberOfParts += 1;
@@ -90,7 +29,12 @@ bool CheckSquareForSymbol(int rowOffset, int columnOffset,
                 }
             } else 
             {
-                AddToHashMap(hashMap, charIndex, memoryArena, num);
+
+                HashNode newHashNodeValue = {};
+                newHashNodeValue.key = key;
+                newHashNodeValue.numberOfParts = 1;
+                newHashNodeValue.numbers[0] = num;
+                AddToHashMap(hashMap, key, newHashNodeValue, memoryArena);
             }
             *wasAlreadyCounted = true;
         }
@@ -100,7 +44,7 @@ bool CheckSquareForSymbol(int rowOffset, int columnOffset,
 }
 
 bool CheckIfAdjacentToSymbol(char* fileContents, int numLength, int index, 
-        int rowLength, DWORD fileSize, int num, HashMap* hashMap, MemoryArena* memoryArena)
+        int rowLength, DWORD fileSize, int num, HashMap<HashNode>* hashMap, MemoryArena* memoryArena)
 {
     // NOTE: We don't return early so we can identify all gear parts!
     bool success = false;
@@ -195,7 +139,7 @@ bool CheckIfAdjacentToSymbol(char* fileContents, int numLength, int index,
     return success;
 }
 
-int ParseHashMap(HashMap* hashMap)
+int ParseHashMap(HashMap<HashNode>* hashMap)
 {
     int result = 0;
     for (int slot = 0; slot < HASH_SIZE; slot++)
@@ -220,7 +164,7 @@ void ParseFileContents(char* fileContents, DWORD fileSize, MemoryArena* memoryAr
     int rowLength = RowLength(fileContents) + 2;
     int result = 0;
 
-    HashMap hashMap = {};
+    HashMap<HashNode> hashMap = {};
     
     for (DWORD index = 0; index < fileSize; index++)
     {
@@ -244,8 +188,8 @@ void ParseFileContents(char* fileContents, DWORD fileSize, MemoryArena* memoryAr
         }
     }
     int gearParts = ParseHashMap(&hashMap);
-    Print("The sum of all parts is: ", result);
-    Print("The sum of gear part ratios is: ", gearParts);
+    Print("The sum of all parts is: %d", result);
+    Print("The sum of gear part ratios is: %d", gearParts);
 }
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
