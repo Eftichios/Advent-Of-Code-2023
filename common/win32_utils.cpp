@@ -105,6 +105,22 @@ inline int Pow(int number, int power)
     return result;
 }
 
+inline ulong32 PowUlong32(int number, int power)
+{
+    if (power == 0)
+    {
+        return 1;
+    }
+
+    ulong32 result = number;
+    while (power > 1)
+    {
+        result *= number;
+        power--;
+    }
+
+    return result;
+}
 
 // #################################################
 //                   STRING UTILS 
@@ -261,6 +277,20 @@ inline int StringToInt(char* s)
     while (*s)
     {
         result += Pow(10, len - 1) * CharToInt(s[index]);
+        s++;
+        len--;
+    }
+    return result;
+}
+
+inline int StringToUlong32(char* s)
+{
+    ulong32 result = 0;
+    int len = Length(s);
+    int index = 0;
+    while (*s)
+    {
+        result += (ulong32)(PowUlong32(10, len - 1) * (ulong32)CharToInt(s[index]));
         s++;
         len--;
     }
