@@ -112,10 +112,27 @@ inline ulong32 PowUlong32(int number, int power)
         return 1;
     }
 
-    ulong32 result = number;
+    ulong32 result = (ulong32)number;
     while (power > 1)
     {
-        result *= number;
+        result *= (ulong32)number;
+        power--;
+    }
+
+    return result;
+}
+
+inline ulong64 PowUlong64(int number, int power)
+{
+    if (power == 0)
+    {
+        return 1;
+    }
+
+    ulong64 result = (ulong64)number;
+    while (power > 1)
+    {
+        result *= (ulong64)number;
         power--;
     }
 
@@ -231,6 +248,34 @@ EatResult EatNumber(char*& s, MemoryArena *memoryArena)
     return eatResult;
 }
 
+char* ConcatStrings(char* a, char* b, MemoryArena *memoryArena)
+{
+    int lenB = Length(b);
+    if (a == 0)
+    {
+        char* result = (char*)AllocateMemory(memoryArena, lenB+1);
+        for (int i = 0; i < lenB; i++)
+        {
+            result[i] = b[i];
+        }
+        result[lenB] = '\0';
+        return result;
+    }
+    int lenA = Length(a);
+
+    char* result = (char*)AllocateMemory(memoryArena, lenA + lenB + 1);
+
+    for (int i = 0; i < lenA; i++){
+        result[i] = a[i];
+    }
+    for (int j = 0; j < lenB; j++)
+    {
+        result[lenA + j] = b[j];
+    }
+    result[lenA+lenB] = '\0';
+    return result;
+}
+
 inline bool CompareStringWithLiteral(char* str, const char* literal)
 {
     int index = 0;
@@ -283,7 +328,7 @@ inline int StringToInt(char* s)
     return result;
 }
 
-inline int StringToUlong32(char* s)
+inline ulong32 StringToUlong32(char* s)
 {
     ulong32 result = 0;
     int len = Length(s);
@@ -291,6 +336,20 @@ inline int StringToUlong32(char* s)
     while (*s)
     {
         result += (ulong32)(PowUlong32(10, len - 1) * (ulong32)CharToInt(s[index]));
+        s++;
+        len--;
+    }
+    return result;
+}
+
+inline ulong64 StringToUlong64(char* s)
+{
+    ulong64 result = 0;
+    int len = Length(s);
+    int index = 0;
+    while (*s)
+    {
+        result += (ulong64)(PowUlong64(10, len - 1) * (ulong64)CharToInt(s[index]));
         s++;
         len--;
     }

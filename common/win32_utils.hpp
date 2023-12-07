@@ -7,6 +7,7 @@
 
 // types
 #define ulong32 unsigned long
+#define ulong64 unsigned long long
 
 struct FileResult
 {
@@ -55,6 +56,7 @@ inline void logA(const char* format, ...);
 
 inline int Pow(int number, int power);
 inline ulong32 PowUlong32(int number, int power);
+inline ulong64 PowUlong64(int number, int power);
 
 inline int CharToInt(char c);
 inline EatResult EatDelimeter(char*& s, char delim);
@@ -67,7 +69,8 @@ inline bool CompareStringWithLiteral(char* str, const char* literal);
 inline int Length(char* s);
 inline int RowLength(char* s);
 inline int StringToInt(char* s);
-inline int StringToUlong32(char* s);
+inline ulong32 StringToUlong32(char* s);
+inline ulong64 StringToUlong64(char* s);
 
 template <typename T>
 void PushArray(Array<T>* array, T value, MemoryArena* memoryArena);

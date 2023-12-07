@@ -232,6 +232,10 @@ void ParseFileContents(char* fileContents, DWORD fileSize, MemoryArena* memoryAr
 
         if (!found)
         {
+            if (currentLocation % 100000 == 0)
+            {
+                Print("Currently considering: %ul\n", currentLocation);
+            }
             currentLocation++;
         }
     }
