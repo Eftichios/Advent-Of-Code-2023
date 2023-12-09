@@ -139,6 +139,24 @@ inline ulong64 PowUlong64(int number, int power)
     return result;
 }
 
+inline ulong64 GCD(ulong64 a, ulong64 b)
+{
+    if (a == 0) return b;
+    return GCD(b % a, a);
+}
+
+inline ulong64 LCM(ulong64 a, ulong64 b)
+{
+    if (a < b)
+    {
+        return ( a / GCD(a, b)) * b;
+    }
+    else 
+    {
+        return ( b / GCD(b, a)) * a;
+    }
+}
+
 // #################################################
 //                   STRING UTILS 
 // #################################################
@@ -355,6 +373,8 @@ inline int StringToInt(char* s)
     int index = 0;
     while (*s)
     {
+        char c = s[index];
+        int v = CharToInt(c);
         result += Pow(10, len - 1) * CharToInt(s[index]);
         s++;
         len--;
@@ -437,6 +457,24 @@ void InitArrayData(Array<T>* array, MemoryArena* memoryArena,
     array->maxCapacity = maxCapacity;
 }
 
+template <typename T>
+bool ArrayAllAreEqualToValue(Array<T>* array, T value)
+{
+    for (int index = 0; index < array->currentCapacity; index++)
+    {
+        if (array->data[index] != value) return false;
+    }
+    return true;
+}
+template <typename T>
+void ArrayPopulateAllWithValue(Array<T>* array, T value, MemoryArena* memoryArena)
+{
+    for (int index = 0; index < array->maxCapacity; index++)
+    {
+        PushArray(array, value, memoryArena);
+    }
+}
+
 // HASHMAP
 int HashFunction(int key)
 {
@@ -468,6 +506,10 @@ T* RetrieveFromHashMap(HashMap<T>* hashMap, int key)
 template <typename T>
 T* AddToHashMap(HashMap<T>* hashMap, int key, T newHashNodeValue, MemoryArena* memoryArena) 
 {
+    T* alreadyInMap = RetrieveFromHashMap(hashMap, key);
+
+    Assert(!alreadyInMap, "Attempted to add duplicate key in hashMap");
+
     T* hashNode = hashMap->hashNodes[HashFunction(key)];
 
     T* newHashNode = (T*)AllocateMemory(memoryArena, 
@@ -491,6 +533,8 @@ T* AddToHashMap(HashMap<T>* hashMap, int key, T newHashNodeValue, MemoryArena* m
     {
         hashMap->hashNodes[HashFunction(key)] = newHashNode;
     }
+
+    hashMap->currentSize ++;
 
     return newHashNode;
 }

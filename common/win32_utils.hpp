@@ -43,6 +43,7 @@ struct Array {
 template <typename T>
 struct HashMap {
     T* hashNodes[HASH_SIZE];
+    int currentSize;
 };
 
 inline void* AllocateMemory(MemoryArena* memoryArena, int size);
@@ -57,6 +58,9 @@ inline void logA(const char* format, ...);
 inline int Pow(int number, int power);
 inline ulong32 PowUlong32(int number, int power);
 inline ulong64 PowUlong64(int number, int power);
+inline ulong64 GCD(ulong64 a, ulong64 b);
+
+inline ulong64 LCM(ulong64 a, ulong64 b);
 
 inline int CharToInt(char c);
 inline EatResult EatDelimeter(char*& s, char delim);
@@ -78,6 +82,10 @@ template <typename T>
 void PushArray(Array<T>* array, T value, MemoryArena* memoryArena);
 template <typename T>
 T PopArray(Array<T>* array);
+template <typename T>
+bool ArrayAllAreEqualToValue(Array<T>* array, T value);
+template <typename T>
+void ArrayPopulateAllWithValue(Array<T>* array, T value, MemoryArena* memoryArena);
 
 int HashFunction(int key);
 template <typename T>
