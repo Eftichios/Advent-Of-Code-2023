@@ -210,6 +210,26 @@ EatResult EatWord(char*& s, MemoryArena *memoryArena)
     return eatResult;
 }
 
+EatResult EatString(char*& s, MemoryArena *memoryArena)
+{
+    EatResult eatResult = {};
+    char* startingString = s;
+    char current = s[0];
+    int length = 0;
+    while (current != ' ')
+    {
+        length++;
+        s++;
+        current = s[0];
+        eatResult.success = true;
+    }
+
+    eatResult.result = (char*)AllocateMemory(memoryArena, length + 1);
+    CopyMemory(eatResult.result, startingString, length + 1);
+    eatResult.result[length] = '\0';
+    return eatResult;
+}
+
 EatResult ExtractNumber(char* s, MemoryArena *memoryArena)
 {
     EatResult eatResult = {};
@@ -274,6 +294,20 @@ char* ConcatStrings(char* a, char* b, MemoryArena *memoryArena)
     }
     result[lenA+lenB] = '\0';
     return result;
+}
+
+bool StringContainsChar(char* s, char c)
+{
+    int index = 0;
+    while (s[index] != 0)
+    {
+        if (s[index] == c)
+        {
+            return true;
+        }
+        s++;
+    }
+    return false;
 }
 
 inline bool CompareStringWithLiteral(char* str, const char* literal)
