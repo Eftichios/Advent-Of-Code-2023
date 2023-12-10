@@ -271,8 +271,15 @@ EatResult EatNumber(char*& s, MemoryArena *memoryArena)
 {
     EatResult eatResult = {};
     char* startingString = s;
-    char current = s[0];
     int length = 0;
+    
+    if (s[0] == '-')
+    {
+        length++;
+        s++;
+    }
+
+    char current = s[0];
     while ((current >= 48 && current <= 57))
     {
         length++;
@@ -368,6 +375,13 @@ inline int RowLength(char* s)
 
 inline int StringToInt(char* s)
 {
+    int negativeMultiplier = 1;
+    if (s[0] == '-')
+    {
+        negativeMultiplier = -1;
+        s++;
+    }
+
     int result = 0;
     int len = Length(s);
     int index = 0;
@@ -379,7 +393,7 @@ inline int StringToInt(char* s)
         s++;
         len--;
     }
-    return result;
+    return result * negativeMultiplier;
 }
 
 inline ulong32 StringToUlong32(char* s)
